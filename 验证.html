@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机长公益端口</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  background: #000;
+  color: #fff;
+  font-family: "Microsoft YaHei", sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  padding-bottom: 40px;
+}
+
+/* 科技加载 */
+.loading{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:#000;
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:20px;
+}
+.load-bar{
+  width:220px;height:4px;
+  background:#003366;
+  border-radius:10px;
+  overflow:hidden;
+}
+.load-prog{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#0066ff,#00eaff);
+  transition:0.3s;
+}
+.load-text{
+  color:#00eaff;font-size:14px;
+  text-shadow:0 0 10px #00eaff;
+}
+
+/* 进入界面 */
+.enter{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:#000;
+  z-index:9998;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:30px;
+}
+.enter-btn{
+  padding:14px 36px;
+  background:linear-gradient(90deg,#0066ff,#00eaff);
+  border:none;
+  border-radius:100px;
+  color:#fff;
+  font-size:16px;
+  font-weight:bold;
+  box-shadow:0 0 30px #0099ff;
+  text-shadow:0 0 10px #fff;
+  cursor:pointer;
+  animation:pulse 1.2s infinite alternate;
+}
+@keyframes pulse{
+  0%{transform:scale(1);}
+  100%{transform:scale(1.08);}
+}
+.enter-text{
+  color:#00eaff;
+  font-size:14px;
+  text-shadow:0 0 15px #00eaff;
+}
+
+/* 科技背景 */
+.bg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  z-index: -99;
+  background: radial-gradient(circle at 50% 50%, #002244 0%, #000 70%);
+}
+.grid {
+  position: fixed;
+  width: 150%;
+  height: 150%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  background-image: 
+    linear-gradient(rgba(0,170,255,0.07) 1px, transparent 1px),
+    linear-gradient(rgba(0,170,255,0.07) 1px, transparent 1px);
+  background-size: 34px 34px;
+  animation: rotate 60s linear infinite;
+}
+@keyframes rotate {
+  0%{transform:translate(-50%,-50%) rotate(0deg);}
+  100%{transform:translate(-50%,-50%) rotate(360deg);}
+}
+
+/* 顶部极光栏 */
+.header {
+  background: linear-gradient(90deg, #0066ff, #00eaff, #00ffaa);
+  padding: 18px 0;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 0 0 15px #fff;
+  box-shadow: 0 0 35px #0099ff;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: "";
+  position: absolute;
+  top:0; left:-100%; width:100%; height:100%;
+  background: linear-gradient(90deg,transparent,#ffffff66,transparent);
+  animation: light 2.4s infinite linear;
+}
+@keyframes light {
+  0%{left:-100%;}100%{left:100%;}
+}
+
+/* 跑马灯 */
+.marquee{
+  background:#001a33;
+  color:#00eaff;
+  padding:6px 0;
+  font-size:12px;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.marquee div{
+  animation:marquee 12s linear infinite;
+}
+@keyframes marquee{
+  0%{transform:translateX(100%);}100%{transform:translateX(-100%);}
+}
+
+/* 信息 */
+.info {
+  text-align: center;
+  padding: 12px 0;
+}
+.time {
+  font-size: 15px;
+  color: #00eaff;
+  text-shadow: 0 0 14px #00eaff;
+}
+.status {
+  font-size: 16px;
+  color: #00ffaa;
+  text-shadow: 0 0 14px #00ffaa;
+  font-weight: bold;
+  margin-top: 5px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+.dot{
+  width:6px;height:6px;
+  background:#00ffaa;
+  border-radius:50%;
+  animation:blink 1.5s infinite;
+}
+@keyframes blink{50%{opacity:0.3;}}
+
+.net{
+  text-align:center;
+  font-size:12px;
+  color:#ffcc00;
+  margin-top:4px;
+  text-shadow:0 0 10px #ffcc00;
+}
+
+/* 圆形头像框 */
+.avatar-box {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0;
+}
+.avatar {
+  width: 85px;
+  height: 85px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  border: 3px solid #0099ff;
+  box-shadow: 0 0 20px #0099ff, 0 0 40px #0099ff88;
+}
+
+/* 路线卡片 */
+.route-card {
+  max-width: 320px;
+  margin: 28px auto;
+  background: rgba(0,30,60,0.8);
+  border-radius: 24px;
+  padding: 28px;
+  border: 1px solid #0099ff99;
+  box-shadow: 0 0 60px #0099ff66, 0 0 120px #0099ff22, inset 0 0 30px rgba(0,150,255,0.1);
+  backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+  animation: breathe 3.2s infinite alternate ease-in-out;
+}
+@keyframes breathe {
+  0%{ box-shadow: 0 0 50px #0099ff55, inset 0 0 30px rgba(0,150,255,0.1); }
+  100%{ box-shadow: 0 0 80px #0099ff99, inset 0 0 40px rgba(0,150,255,0.15); }
+}
+.route-card::before {
+  content: "";
+  position: absolute;
+  top:0; left:0; width:100%; height:3px;
+  background: linear-gradient(90deg,#0066ff,#00eaff,#00ffaa,#0066ff);
+  background-size: 200% 100%;
+  animation: line 4.2s linear infinite;
+}
+@keyframes line {
+  0%{ background-position: 0 0; }
+  100%{ background-position: 200% 0; }
+}
+.route-card::after {
+  content: "";
+  position: absolute;
+  top:0; left:0; width:100%; height:100%;
+  background: linear-gradient(transparent, rgba(0,150,255,0.08), transparent);
+  animation: scan 3.6s infinite linear;
+}
+@keyframes scan {
+  0%{transform:translateY(-100%);}100%{transform:translateY(100%);}
+}
+
+.route-title {
+  text-align: center;
+  font-size: 13px;
+  color: #ccc;
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.route-name {
+  background: rgba(0,50,90,0.8);
+  border: 1px solid #00eaff;
+  border-radius: 18px;
+  padding: 20px;
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  color: #00eaff;
+  text-shadow: 0 0 22px #00eaff;
+  margin-bottom: 16px;
+  animation: pulse 2.5s infinite alternate;
+}
+@keyframes pulse {
+  0%{ text-shadow: 0 0 18px #00eaff; }
+  100%{ text-shadow: 0 0 30px #00eaff; }
+}
+
+.route-delay {
+  text-align: center;
+  font-size: 15px;
+  color: #ffcc00;
+  text-shadow: 0 0 14px #ffcc00;
+  margin-bottom: 20px;
+}
+
+/* 状态小卡片 */
+.stat-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.stat-box {
+  flex: 1;
+  background: rgba(0,40,80,0.6);
+  border-radius: 12px;
+  padding: 10px 4px;
+  text-align: center;
+  border: 1px solid #0099ff44;
+  position: relative;
+  overflow: hidden;
+}
+.stat-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg,transparent,rgba(0,150,255,0.1),transparent);
+  animation: statLight 4s infinite linear;
+}
+@keyframes statLight {
+  0%{ left:-100%; }
+  100%{ left:100%; }
+}
+.stat-label {
+  font-size: 11px;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+.stat-val {
+  font-size: 14px;
+  font-weight: bold;
+  color: #00eaff;
+  text-shadow: 0 0 8px #00eaff;
+}
+
+/* 按钮组 */
+.btn-group{
+  display:flex;
+  gap:10px;
+}
+.route-btn,.refresh-btn {
+  flex:1;
+  padding: 17px 0;
+  border-radius: 18px;
+  border: none;
+  font-size: 14px;
+  font-weight: bold;
+  color: #fff;
+  box-shadow: 0 6px 28px #0099ff77;
+  text-shadow: 0 0 8px #fff;
+  transition: 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.route-btn{
+  background: linear-gradient(90deg,#0066ff,#00eaff);
+}
+.refresh-btn{
+  background: linear-gradient(90deg,#00ff88,#00cc66);
+}
+.route-btn::before,.refresh-btn::before {
+  content: "";
+  position: absolute;
+  top:0; left:-100%; width:100%; height:100%;
+  background: linear-gradient(90deg,transparent,#ffffff44,transparent);
+  animation: btnLight 3s infinite linear;
+}
+@keyframes btnLight {
+  0%{ left:-100%; }
+  100%{ left:100%; }
+}
+.route-btn:active,.refresh-btn:active {
+  transform: scale(0.96);
+}
+
+/* 当前路线状态 + 胶囊 */
+.route-info {
+  text-align: center;
+  margin-top: 12px;
+  font-size: 12px;
+  color: #00eaff;
+  text-shadow: 0 0 8px #00eaff;
+  display: flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
+}
+.route-tag {
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: bold;
+  background: #004466;
+  color: #fff;
+}
+.tag-excellent { background: #00cc88; }
+.tag-good      { background: #00aaff; }
+.tag-normal    { background: #ffaa00; }
+.tag-smooth    { background: #66cc00; }
+
+/* 连接信息卡片 */
+.info-card {
+  max-width: 320px;
+  margin: 20px auto;
+  background: rgba(0,30,60,0.8);
+  border-radius: 24px;
+  padding: 28px;
+  border: 1px solid #0099ff99;
+  box-shadow: 0 0 60px #0099ff66, 0 0 120px #0099ff22, inset 0 0 30px rgba(0,150,255,0.1);
+  backdrop-filter: blur(16px);
+  text-align: center;
+}
+.info-card h3 {
+  font-size: 16px;
+  color: #00eaff;
+  margin-bottom: 20px;
+  text-shadow: 0 0 8px #00eaff;
+}
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #004466;
+  font-size: 14px;
+}
+.info-item:last-child {
+  border-bottom: none;
+}
+.info-label {
+  color: #ccc;
+}
+.info-value {
+  color: #00ffaa;
+  font-weight: bold;
+  text-shadow: 0 0 6px #00ffaa;
+}
+
+.footer{
+  text-align:center;
+  font-size:11px;
+  color:#888;
+  padding:20px 10px;
+  text-shadow:0 0 6px #888;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 加载 -->
+<div class="loading" id="load">
+  <div class="load-text">线路连接初始化中...</div>
+  <div class="load-bar"><div class="load-prog" id="prog"></div></div>
+</div>
+
+<!-- 进入界面 -->
+<div class="enter" id="enter">
+  <div class="enter-text">线路连接初始化成功</div>
+  <button class="enter-btn" id="enterBtn">点击进入</button>
+</div>
+
+<div class="bg"></div>
+<div class="grid"></div>
+
+<div class="header">✈️ 机长公益端口验证成功</div>
+
+<div class="marquee">
+  <div>人生如戏，全靠演戏，早日封神</div>
+</div>
+
+<div class="info">
+  <div class="time" id="t"></div>
+  <div class="status"><div class="dot"></div> 上号稳定奔放 <div class="dot"></div></div>
+  <div class="net" id="net">网速：-- Mbps</div>
+</div>
+
+<!-- 圆形头像 -->
+<div class="avatar-box">
+  <div class="avatar" id="avatar"></div>
+</div>
+
+<!-- 主卡片 -->
+<div class="route-card">
+  <div class="route-title">当前连接路线</div>
+  <div class="route-name" id="r">🇨🇳 湖北十堰 · CN2 GIA</div>
+  <div class="route-delay" id="d">延迟：31 ms</div>
+
+  <div class="stat-row">
+    <div class="stat-box">
+      <div class="stat-label">运行时间</div>
+      <div class="stat-val" id="run_time">00:00:00</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">当前延迟</div>
+      <div class="stat-val" id="stat_delay">31 ms</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">在线状态</div>
+      <div class="stat-val" id="online_stat">已在线</div>
+    </div>
+  </div>
+
+  <div class="btn-group">
+    <button class="route-btn" id="btn">🔄 更换路线</button>
+    <button class="refresh-btn" id="refresh">📶 一键刷新</button>
+  </div>
+
+  <div class="route-info">
+    <span>当前路线状态</span>
+    <span class="route-tag" id="route_tag">极佳</span>
+  </div>
+</div>
+
+<!-- 连接信息卡片 -->
+<div class="info-card">
+  <h3>🔗 连接信息</h3>
+  <div class="info-item">
+    <span class="info-label">更新端口</span>
+    <span class="info-value">3968</span>
+  </div>
+  <div class="info-item">
+    <span class="info-label">加密方式</span>
+    <span class="info-value">TLS 1.3</span>
+  </div>
+  <div class="info-item">
+    <span class="info-label">协议类型</span>
+    <span class="info-value">TCP</span>
+  </div>
+  <div class="info-item">
+    <span class="info-label">在线人数</span>
+    <span class="info-value" id="onlineUser">--</span>
+  </div>
+  <div class="info-item">
+    <span class="info-label">官方群聊</span>
+    <span class="info-value">1084704047</span>
+  </div>
+</div>
+
+<div class="footer">© 机长科技 · 公益专用 · 稳定奔放</div>
+
+<script>
+// 音频
+const audio = new Audio("http://cccimg.com/view.php/854d424a5f1a2054148ac5a0365bb3bd.mp3");
+audio.volume = 1.0;
+
+// 头像直链
+let avatarUrl = "http://cccimg.com/view.php/863fc39fad6b72f54a500f16b7199118.png";
+document.getElementById("avatar").style.backgroundImage = `url(${avatarUrl})`;
+
+// 随机在线人数
+let onlineUser = 692;
+document.getElementById("onlineUser").innerText = onlineUser;
+
+// 加载
+let p=0;
+let prog=document.getElementById("prog");
+let load=document.getElementById("load");
+let enter=document.getElementById("enter");
+
+let tim=setInterval(()=>{
+  p+=2;prog.style.width=p+"%";
+  if(p>=100){
+    clearInterval(tim);
+    load.style.display="none";
+    enter.style.display="flex"; // 加载完显示进入界面
+  }
+},30);
+
+// 点击进入
+document.getElementById("enterBtn").onclick=()=>{
+  audio.play().catch(err=>{}); // 播放音效
+  enter.style.display="none"; // 关闭进入界面
+};
+
+// 时间
+function time(){document.getElementById("t").innerText=new Date().toLocaleString()}
+setInterval(time,1000);time();
+
+// 网速
+function net(){
+  let n=(Math.random()*10+2).toFixed(1);
+  document.getElementById("net").innerText=`网速：${n} Mbps`
+}
+setInterval(net,2000);
+
+// 运行时间计时
+let start = Date.now();
+function runTime() {
+  let diff = Math.floor((Date.now() - start) / 1000);
+  let h = String(Math.floor(diff / 3600)).padStart(2, '0');
+  let m = String(Math.floor((diff % 3600) / 60)).padStart(2, '0');
+  let s = String(diff % 60).padStart(2, '0');
+  document.getElementById("run_time").innerText = `${h}:${m}:${s}`;
+}
+setInterval(runTime, 1000);
+
+// 地区列表
+let list = [
+  "🇨🇳 湖北十堰 · CN2 GIA",
+  "🇨🇳 广东广州 · CN2 GIA",
+  "🇨🇳 上海电信 · CN2 GIA",
+  "🇨🇳 北京联通 · CN2 GIA",
+  "🇨🇳 江苏南京 · CN2 GIA",
+  "🇨🇳 浙江杭州 · CN2 GIA",
+  "🇨🇳 四川成都 · CN2 GIA",
+  "🇨🇳 山东济南 · CN2 GIA",
+  "🇨🇳 河南郑州 · CN2 GIA"
+];
+
+// 路线状态
+let tagList = [
+  { text: "极佳", cls: "tag-excellent" },
+  { text: "良好", cls: "tag-good" },
+  { text: "一般", cls: "tag-normal" },
+  { text: "流畅", cls: "tag-smooth" }
+];
+
+function setRouteTag() {
+  let tag = tagList[Math.floor(Math.random() * tagList.length)];
+  let el = document.getElementById("route_tag");
+  el.className = "route-tag " + tag.cls;
+  el.innerText = tag.text;
+}
+
+// 延迟函数
+function delay(){
+  let ms=Math.floor(Math.random()*51)+20;
+  document.getElementById("d").innerText=`延迟：${ms} ms`;
+  document.getElementById("stat_delay").innerText=`${ms} ms`;
+}
+
+// 更换路线
+document.getElementById("btn").onclick=()=>{
+  document.getElementById("r").innerText=list[Math.floor(Math.random()*list.length)];
+  delay();
+  setRouteTag();
+};
+
+// 一键刷新
+document.getElementById("refresh").onclick=()=>{
+  delay();
+  setRouteTag();
+};
+
+// 初始化
+delay();
+setRouteTag();
+</script>
+</body>
+</html>
